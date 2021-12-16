@@ -30,5 +30,5 @@ for tiap_produksi in produksi_terbanyak:
 x = negara
 y = produksi_terbanyak
 
-plt.plot(x, y)
+st.plot(x, y)
 
