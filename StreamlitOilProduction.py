@@ -1,73 +1,34 @@
-import streamlit as st
-import altair as alt
 import pandas as pd
-from vega_datasets import data
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from datetime import datetime
+import json
+import matplotlib.pyplot as plt
+import streamlit as st
 
-from utils import chart, db
+#Streamlit Interface
 
-COMMENT_TEMPLATE_MD = """{} - {}
-> {}"""
+st.subheader("N negara dengan Produksi Terbesar")
 
 
-def space(num_lines=1):
-    """Adds empty lines to the Streamlit app."""
-    for _ in range(num_lines):
-        st.write("")
 
 
-st.set_page_config(layout="centered", page_icon="💬", page_title="Commenting app")
 
-# Data visualisation part
+file_json = open('kode_negara_lengkap.json')
+data_json = json.load(file_json)
+excell = pd.read_csv('produksi_minyak_mentah.csv')
+data_excel = pd.DataFrame(excell)
 
-st.title("💬 Commenting app")
 
-source = data.stocks()
-all_symbols = source.symbol.unique()
-symbols = st.multiselect("Choose stocks to visualize", all_symbols, all_symbols[:3])
+banyaknegara = st.slider(label = "Banyak Negara", min_value = 1, max_value= 142)
 
-space(1)
+tahun = st.slider(label = "Tahun Produksi", min_value = 1970, max_value= 2015)
+negara = []
+produksi_terbanyak = data_excel[data_excel.tahun == tahun].produksi.sort_values(ascending = False)[:banyaknegara].values
 
-source = source[source.symbol.isin(symbols)]
-chart = chart.get_chart(source)
-st.altair_chart(chart, use_container_width=True)
+for tiap_produksi in produksi_terbanyak:
+    negara_produksi_terbanyak = data_excel[(data_excel.tahun == tahun) & (data_excel.produksi == tiap_produksi)].kode_negara.item()
+    negara.append(negara_produksi_terbanyak)
 
-space(2)
+x = negara
+y = produksi_terbanyak
 
-# Comments part
+plt.plot(x, y)
 
-conn = db.connect()
-comments = db.collect(conn)
-
-with st.expander("💬 Open comments"):
-
-    # Show comments
-
-    st.write("**Comments:**")
-
-    for index, entry in enumerate(comments.itertuples()):
-        st.markdown(COMMENT_TEMPLATE_MD.format(entry.name, entry.date, entry.comment))
-
-        is_last = index == len(comments) - 1
-        is_new = "just_posted" in st.session_state and is_last
-        if is_new:
-            st.success("☝️ Your comment was successfully posted.")
-
-    space(2)
-
-    # Insert comment
-
-    st.write("**Add your own comment:**")
-    form = st.form("comment")
-    name = form.text_input("Name")
-    comment = form.text_area("Comment")
-    submit = form.form_submit_button("Add comment")
-
-    if submit:
-        date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        db.insert(conn, [[name, comment, date]])
-        if "just_posted" not in st.session_state:
-            st.session_state["just_posted"] = True
-        st.experimental_rerun()
