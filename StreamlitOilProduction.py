@@ -1,7 +1,6 @@
 from numpy import int0
 import pandas as pd
 import json
-import pylab.pyplot as plt
 import streamlit as st
 import time
 
