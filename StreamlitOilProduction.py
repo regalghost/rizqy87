@@ -1,3 +1,6 @@
+#12220087
+#Rizqy Wahyu Bachtiar
+
 from numpy import int0
 import pandas as pd
 import json
@@ -5,7 +8,7 @@ import streamlit as st
 import time
 import matplotlib.pyplot as plt
 
-
+#menginputkan file json dan csv yang diperlukan
 file_json = open('kode_negara_lengkap.json')
 data_json = json.load(file_json)
 excell = pd.read_csv('produksi_minyak_mentah.csv')
@@ -13,6 +16,8 @@ data_excel = pd.DataFrame(excell)
 
 nama_negara_untuk_selectbox = []
 selectboxnama = []
+
+#fungsi untuk menyamakan nama karena pada file csv belum tentu ada di json begitu juga sebaliknya
 def fungsi_menyamakan_nama_json_dengan_csv():
     for i in range(len(data_excel.kode_negara)):
         for nama in data_json:
@@ -48,6 +53,8 @@ st.subheader("Perbandingan Jumlah Produksi Tiap Negara pada Tahun ke-T")
 nama_negara = st.selectbox("Pilih Negara yang diinginkan: ", (selectboxnama))
 
 
+
+#St.cache berfungsi untuk memberi ruang cache dan memperlancar program karena sebelumnya sangat lag
 @st.cache(suppress_st_warning=True)
 def expensive_computation(a, b):
     st.write("Cache miss: expensive_computation(", a, ",", b, ") ran")
@@ -69,8 +76,10 @@ for tiap_kode in data_json:
 
 
 diagram_garis = data_excel[data_excel['kode_negara'] == kode][['tahun', 'produksi']]
+
 x_garis = data_excel[data_excel['kode_negara'] == kode].tahun
 y_garis = data_excel[data_excel['kode_negara'] == kode].produksi
+
 fig_1, ax1 = plt.subplots()
 ax1.plot(x_garis, y_garis)
 ax1.set_title(f'Nilai Produksi dari {nama_negara}')
@@ -87,8 +96,7 @@ melihat grafik geser slider sesuai yang diinginkan''')
 banyaknegara = st.slider(label = "Banyak Negara", min_value = 1, max_value= 142)
 tahun = st.slider(label = "Tahun: ", min_value = 1970, max_value = 2015)
 
-
-def ubah_kode_ke_nama(kode_negara):
+def ubah_kode_ke_nama(kode_negara): #fungsi mengubah nama negara menjadi kode negara agar bisa didapatkan nilai produksi
     for tiap_negara in data_json:
         if tiap_negara['alpha-3'] == kode_negara:
             negara.append(tiap_negara['name'])
