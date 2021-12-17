@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import streamlit as st
 import time
+import matplotlib.pyplot as plt
 
 
 file_json = open('kode_negara_lengkap.json')
