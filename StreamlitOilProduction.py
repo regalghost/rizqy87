@@ -1,7 +1,7 @@
 from numpy import int0
 import pandas as pd
 import json
-import matplotlib.pyplot as plt
+import pylab.pyplot as plt
 import streamlit as st
 import time
 
